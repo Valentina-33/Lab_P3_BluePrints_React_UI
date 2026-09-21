@@ -1,10 +1,12 @@
 import '@testing-library/jest-dom'
 
 // ---- Canvas mock para jsdom ----
-if (!HTMLCanvasElement.prototype.getContext) {
-  HTMLCanvasElement.prototype.getContext = () => {
-    const noop = () => {}
-    return {
+// jsdom SÍ define getContext, pero lanza "not implemented" al invocarlo
+// (no soporta rendering 2D sin el paquete `canvas`), así que hay que
+// sobrescribirlo siempre, no solo cuando falta.
+HTMLCanvasElement.prototype.getContext = () => {
+  const noop = () => {}
+  return {
       canvas: {},
       fillRect: noop,
       clearRect: noop,
@@ -33,6 +35,5 @@ if (!HTMLCanvasElement.prototype.getContext) {
       getImageData: () => ({}),
       getLineDash: () => [],
       setLineDash: noop,
-    }
   }
 }

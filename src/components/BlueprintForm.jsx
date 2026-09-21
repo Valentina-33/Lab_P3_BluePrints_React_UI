@@ -20,8 +20,9 @@ export default function BlueprintForm({ onSubmit }) {
       <h3 style={{ marginTop: 0 }}>Crear Blueprint</h3>
       <div className="grid cols-2">
         <div>
-          <label>Autor</label>
+          <label htmlFor="bp-author">Autor</label>
           <input
+            id="bp-author"
             className="input"
             value={author}
             onChange={(e) => setAuthor(e.target.value)}
@@ -29,8 +30,9 @@ export default function BlueprintForm({ onSubmit }) {
           />
         </div>
         <div>
-          <label>Nombre</label>
+          <label htmlFor="bp-name">Nombre</label>
           <input
+            id="bp-name"
             className="input"
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -39,8 +41,9 @@ export default function BlueprintForm({ onSubmit }) {
         </div>
       </div>
       <div style={{ marginTop: 12 }}>
-        <label>Puntos (JSON)</label>
+        <label htmlFor="bp-points">Puntos (JSON)</label>
         <textarea
+          id="bp-points"
           className="input"
           rows="5"
           value={pointsJSON}
