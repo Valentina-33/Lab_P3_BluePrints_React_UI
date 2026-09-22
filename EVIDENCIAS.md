@@ -16,6 +16,7 @@
 | 10 | Tabla con los planos de "maria" (nombre/puntos/botón Open, con hover) | [Punto 6](#punto-6-estilos) |
 | 11 | Canvas del plano "garage" abierto, con los estilos aplicados | [Punto 6](#punto-6-estilos) |
 | 12 | Página principal en modo responsive (layout de una sola columna) | [Punto 6](#punto-6-estilos) |
+| 13 | Salida de `npm test` con los 5 archivos y 12 pruebas en verde | [Punto 7](#punto-7-pruebas-unitarias) |
 
 ---
 
@@ -201,4 +202,33 @@ Mariana lo revisó en el navegador y tomó las capturas. De paso encontramos alg
 
 ## Punto 7. Pruebas unitarias
 
-*(Pendiente — aunque como se cuenta arriba, ya arreglamos los tests que estaban rotos desde antes de empezar con los puntos del laboratorio. Cuando lleguemos formalmente a este punto, documentamos qué se agregó de nuevo.)*
+Este punto pide pruebas con Vitest + Testing Library que validen tres cosas: que el canvas se renderice, que el formulario se pueda enviar, y alguna interacción básica con Redux (el ejemplo del README es el dispatch de `fetchByAuthor`).
+
+Como se contó al principio de este documento, los 4 tests que ya existían estaban rotos por 3 bugs reales (no solo configuración) y ya los habíamos arreglado antes de empezar con los puntos del laboratorio. Revisando esos 4 tests contra lo que pide el punto 7, nos dimos cuenta de que **las tres cosas que exige el README ya estaban cubiertas**:
+
+- Render del canvas → `tests/BlueprintCanvas.test.jsx`.
+- Envío del formulario → `tests/BlueprintForm.test.jsx`.
+- Dispatch de `fetchByAuthor` → `tests/BlueprintsPage.test.jsx`.
+
+Pero encontramos un hueco real al mirar más de cerca: ninguno de los tests probaba lo que se construyó en los puntos 2, 3 y 4 del laboratorio. El test del slice de Redux (`blueprintsSlice.test.jsx`) solo comprobaba que el estado inicial estuviera vacío, y no había ningún test para los servicios nuevos (`apimock`/`apiclient`) que armamos en el punto 4.
+
+Agregamos dos cosas:
+
+1. **Tres casos nuevos en `blueprintsSlice.test.jsx`**, probando los reducers que sí cambian el estado cuando se completa una petición: que `fetchByAuthor` guarde los planos bajo el nombre del autor correcto, que `fetchBlueprint` actualice el plano abierto actualmente, y que `createBlueprint` agregue un plano nuevo a la lista de su autor si ya existía. Estos se prueban llamando al reducer directamente con la acción, sin necesidad de mocks ni de un store completo.
+2. **Un archivo nuevo, `blueprintsMockClient.test.jsx`**, con cinco casos que prueban el servicio de datos de prueba en memoria: que `getAll` traiga todo, que `getByAuthor` filtre bien por autor, que `getByAuthorAndName` traiga el plano correcto (y que rechace la promesa si no existe), y que `create` agregue un plano nuevo que después sí aparece al consultarlo.
+
+De paso, revisando `BlueprintsPage.test.jsx` para agregar lo anterior, notamos que el mock del slice todavía declaraba una función `fetchAuthors` que ya no existe en el código real desde que se limpió en el punto 2 — era código muerto en el test que no hacía nada, así que lo quitamos.
+
+No agregamos pruebas para `blueprintsApiClient.js` (el servicio que sí habla con el backend real) porque probarlo bien requeriría simular Axios, y tampoco para el interruptor de `blueprintsService.js` (que decide entre mock y real), porque depende de una variable de entorno que se lee apenas arranca la aplicación, lo que lo hace más delicado de probar de forma confiable. Los dejamos fuera del alcance de esta sesión; no son necesarios para cumplir el requisito.
+
+Con todo esto, quedaron **5 archivos de test y 12 pruebas en total, todas pasando**, y el lint sigue limpio.
+
+![Salida de npm test con los 5 archivos y 12 pruebas en verde](evidencias/07-tests.png)
+*Figura 13. `npm test` corriendo los 5 archivos de test (los 4 originales + `blueprintsMockClient.test.jsx`), 12 pruebas en total, todas en verde.*
+
+**Archivos nuevos:**
+- [`tests/blueprintsMockClient.test.jsx`](./tests/blueprintsMockClient.test.jsx)
+
+**Archivos que cambiaron:**
+- [`tests/blueprintsSlice.test.jsx`](./tests/blueprintsSlice.test.jsx) (3 casos nuevos)
+- [`tests/BlueprintsPage.test.jsx`](./tests/BlueprintsPage.test.jsx) (se quitó el mock muerto de `fetchAuthors`)
