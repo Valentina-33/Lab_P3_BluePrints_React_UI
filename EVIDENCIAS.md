@@ -37,34 +37,62 @@ Probamos la página con el servidor corriendo y así se ve hoy: el canvas está 
 
 ## Punto 2. Listar los planos de un autor
 
-*(Todavía no empezamos este punto — se va a documentar acá cuando lo trabajemos.)*
+Acá el laboratorio pide poder escribir el nombre de un autor, consultarlo, y ver sus planos en una tabla, con el nombre del plano, cuántos puntos tiene, y un botón para abrirlo.
+
+En la pantalla esto ya estaba armado: hay un campo para escribir el autor, un botón "Get blueprints" y la tabla de resultados. El problema es que por debajo no estaba hablando bien con el backend real, y nos fuimos encontrando varias cosas mientras lo probábamos:
+
+- Le estaba preguntando a una ruta que no existe tal cual (`/blueprints/autor`). La info real está en `/v1/blueprints/autor`.
+- La respuesta del backend no viene "pelada": viene envuelta en un objeto con `code`, `message` y `data`. Había que sacar los datos de ahí adentro.
+- El navegador bloqueaba las peticiones por un tema de CORS: el backend no está configurado para aceptar pedidos que vengan de `localhost:5173` (el puerto donde corre el frontend). Como no queríamos meternos a tocar el backend de otro laboratorio ya entregado, lo resolvimos desde el lado del frontend: configuramos Vite para que, mientras estamos programando, reenvíe por detrás las peticiones que empiezan en `/api` directo al backend, sin que el navegador se entere. Así ya no aplica la restricción de CORS.
+- De paso nos dimos cuenta de que había un pedacito de código que no servía para nada: apenas se abría la página, se disparaba sola una petición para traer "todos los autores", pero ese resultado nunca se usaba en ninguna parte de la pantalla. Y como esa petición fallaba (por las mismas rutas mal apuntadas), dejaba la página como si algo hubiera "fallado" sin que nadie se enterara ni pasara nada raro visible. Como no cumplía ningún propósito, la quitamos.
+
+Con esos cambios ya probamos buscar los planos del autor "john" (uno que habíamos creado de prueba cuando estábamos validando que el backend funcionara) y la tabla mostró bien su plano "house", con sus 2 puntos, y el botón para abrirlo.
+
+Repasando el README, el punto pide que la tabla tenga exactamente tres cosas, y así quedaron:
+
+- **Nombre del plano:** columna "Blueprint name", mostró "house".
+- **Número de puntos:** columna "Number of points", mostró "2".
+- **Botón Open para abrirlo:** una tercera columna con el botón "Open" al lado de cada fila.
+
+Las tres columnas están armadas en [BlueprintsPage.jsx](./src/pages/BlueprintsPage.jsx), en la tabla que se arma recorriendo los resultados (`items.map(...)`).
+
+Una aclaración importante: para poder probar esto tuvimos que "loguearnos" a mano, pidiendo el token por fuera (con curl), porque el backend real exige ese token para consultar cualquier cosa, y la pantalla de Login del frontend todavía no está bien conectada con el backend real (eso lo vamos a resolver más adelante, en su propio punto). Por ahora simplemente pusimos el token a la fuerza para poder comprobar que la tabla sí funciona de verdad.
+
+📷 *Captura pendiente:* `evidencias/02-listado-autor.png` — la tabla mostrando el plano "house" del autor john, con 2 puntos.
+
+**Archivos que cambiaron:**
+- [`src/features/blueprints/blueprintsSlice.js`](./src/features/blueprints/blueprintsSlice.js) (ruta correcta + lectura de la respuesta real)
+- [`src/pages/BlueprintsPage.jsx`](./src/pages/BlueprintsPage.jsx) (se quitó la llamada que no servía para nada)
+- [`vite.config.js`](./vite.config.js) (proxy para evitar el bloqueo de CORS mientras desarrollamos)
+- [`src/services/apiClient.js`](./src/services/apiClient.js) (la URL base ahora es relativa, para aprovechar el proxy)
+- [`.env.example`](./.env.example) (actualizado a la nueva URL relativa)
 
 ---
 
-## Punto 3 — Seleccionar un plano y graficarlo
+## Punto 3. Seleccionar un plano y graficarlo
 
 *(Pendiente.)*
 
 ---
 
-## Punto 4 — Servicios `apimock` y `apiclient`
+## Punto 4. Servicios `apimock` y `apiclient`
 
 *(Pendiente.)*
 
 ---
 
-## Punto 5 — Interfaz con React (estado en Redux)
+## Punto 5. Interfaz con React (estado en Redux)
 
 *(Pendiente.)*
 
 ---
 
-## Punto 6 — Estilos
+## Punto 6. Estilos
 
 *(Pendiente.)*
 
 ---
 
-## Punto 7 — Pruebas unitarias
+## Punto 7. Pruebas unitarias
 
 *(Pendiente — aunque como se cuenta arriba, ya arreglamos los tests que estaban rotos desde antes de empezar con los puntos del laboratorio. Cuando lleguemos formalmente a este punto, documentamos qué se agregó de nuevo.)*

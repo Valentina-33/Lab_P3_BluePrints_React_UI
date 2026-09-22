@@ -1,10 +1,6 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import {
-  fetchAuthors,
-  fetchByAuthor,
-  fetchBlueprint,
-} from '../features/blueprints/blueprintsSlice.js'
+import { fetchByAuthor, fetchBlueprint } from '../features/blueprints/blueprintsSlice.js'
 import BlueprintCanvas from '../components/BlueprintCanvas.jsx'
 
 export default function BlueprintsPage() {
@@ -13,10 +9,6 @@ export default function BlueprintsPage() {
   const [authorInput, setAuthorInput] = useState('')
   const [selectedAuthor, setSelectedAuthor] = useState('')
   const items = byAuthor[selectedAuthor] || []
-
-  useEffect(() => {
-    dispatch(fetchAuthors())
-  }, [dispatch])
 
   const totalPoints = useMemo(
     () => items.reduce((acc, bp) => acc + (bp.points?.length || 0), 0),

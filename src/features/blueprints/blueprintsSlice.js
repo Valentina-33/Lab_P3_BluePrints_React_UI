@@ -9,8 +9,9 @@ export const fetchAuthors = createAsyncThunk('blueprints/fetchAuthors', async ()
 })
 
 export const fetchByAuthor = createAsyncThunk('blueprints/fetchByAuthor', async (author) => {
-  const { data } = await api.get(`/blueprints/${encodeURIComponent(author)}`)
-  return { author, items: data }
+  // La API real envuelve la respuesta en { code, message, data }
+  const { data: body } = await api.get(`/v1/blueprints/${encodeURIComponent(author)}`)
+  return { author, items: body.data || [] }
 })
 
 export const fetchBlueprint = createAsyncThunk(
