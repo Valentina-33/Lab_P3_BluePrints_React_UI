@@ -146,7 +146,17 @@ Los dos casos funcionaron sin tocar ni una línea de código, solo cambiando esa
 
 ## Punto 5. Interfaz con React (estado en Redux)
 
-*(Pendiente.)*
+Este punto pide dos cosas: que el nombre del plano actual se muestre en pantalla como parte del estado global de Redux (no escrito a mano en algún lado), y que no se manipule el DOM directamente, sino que todo pase por componentes y estado de React.
+
+Al revisar el código nos dimos cuenta de que esto ya estaba resuelto desde que se armaron los puntos anteriores, así que no hubo que cambiar nada. Igual lo comprobamos a fondo, no nos quedamos con la primera impresión:
+
+- El nombre del plano abierto vive en `current`, dentro de `blueprintsSlice.js` (el estado global de Redux). La pantalla lo lee con `useSelector` en `BlueprintsPage.jsx` y lo muestra como "Current blueprint: nombre-del-plano". Nunca se escribe directo en el HTML.
+- Repasamos **todo** el código del frontend buscando cualquier manipulación directa del DOM (cosas como `document.algo`, `innerHTML`, `querySelector`) y no encontramos ninguna, salvo la línea estándar de arranque de React en `main.jsx` (`document.getElementById('root')`), que es obligatoria en cualquier app de React y no cuenta como una violación de esta regla.
+- El único lugar donde se toca algo "por fuera" de React es el canvas, pero ahí no queda otra: dibujar líneas y puntos requiere su propia API nativa (`ctx`), a la que se llega a través de un `ref` de React, tal como se hace normalmente en cualquier app de React que use canvas.
+
+Esto ya se puede ver, de hecho, en la Figura 5 del punto 3: ahí aparece el texto "Current blueprint: house", que es justo ese dato saliendo del estado global.
+
+**Archivos revisados (sin cambios):** `src/features/blueprints/blueprintsSlice.js`, `src/pages/BlueprintsPage.jsx`, `src/components/BlueprintCanvas.jsx`, y el resto de `src/` para descartar manipulación directa del DOM.
 
 ---
 
