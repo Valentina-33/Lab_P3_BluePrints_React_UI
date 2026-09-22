@@ -26,11 +26,11 @@ export default function BlueprintsPage() {
   }
 
   return (
-    <div className="grid" style={{ gridTemplateColumns: '1.1fr 1.4fr', gap: 24 }}>
+    <div className="page-layout">
       <section className="grid" style={{ gap: 16 }}>
         <div className="card">
-          <h2 style={{ marginTop: 0 }}>Blueprints</h2>
-          <div style={{ display: 'flex', gap: 12 }}>
+          <h2>Blueprints</h2>
+          <div className="search-row">
             <input
               className="input"
               placeholder="Author"
@@ -44,54 +44,26 @@ export default function BlueprintsPage() {
         </div>
 
         <div className="card">
-          <h3 style={{ marginTop: 0 }}>
-            {selectedAuthor ? `${selectedAuthor}'s blueprints:` : 'Results'}
-          </h3>
-          {status === 'loading' && <p>Cargando...</p>}
-          {!items.length && status !== 'loading' && <p>Sin resultados.</p>}
+          <h3>{selectedAuthor ? `${selectedAuthor}'s blueprints:` : 'Results'}</h3>
+          {status === 'loading' && <p className="muted">Cargando...</p>}
+          {!items.length && status !== 'loading' && <p className="muted">Sin resultados.</p>}
           {!!items.length && (
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <div className="table-wrap">
+              <table className="table">
                 <thead>
                   <tr>
-                    <th
-                      style={{
-                        textAlign: 'left',
-                        padding: '8px',
-                        borderBottom: '1px solid #334155',
-                      }}
-                    >
-                      Blueprint name
-                    </th>
-                    <th
-                      style={{
-                        textAlign: 'right',
-                        padding: '8px',
-                        borderBottom: '1px solid #334155',
-                      }}
-                    >
-                      Number of points
-                    </th>
-                    <th style={{ padding: '8px', borderBottom: '1px solid #334155' }}></th>
+                    <th>Blueprint name</th>
+                    <th className="text-right">Number of points</th>
+                    <th></th>
                   </tr>
                 </thead>
                 <tbody>
                   {items.map((bp) => (
                     <tr key={bp.name}>
-                      <td style={{ padding: '8px', borderBottom: '1px solid #1f2937' }}>
-                        {bp.name}
-                      </td>
-                      <td
-                        style={{
-                          padding: '8px',
-                          textAlign: 'right',
-                          borderBottom: '1px solid #1f2937',
-                        }}
-                      >
-                        {bp.points?.length || 0}
-                      </td>
-                      <td style={{ padding: '8px', borderBottom: '1px solid #1f2937' }}>
-                        <button className="btn" onClick={() => openBlueprint(bp)}>
+                      <td>{bp.name}</td>
+                      <td className="text-right">{bp.points?.length || 0}</td>
+                      <td>
+                        <button className="btn sm" onClick={() => openBlueprint(bp)}>
                           Open
                         </button>
                       </td>
@@ -101,12 +73,12 @@ export default function BlueprintsPage() {
               </table>
             </div>
           )}
-          <p style={{ marginTop: 12, fontWeight: 700 }}>Total user points: {totalPoints}</p>
+          <p className="stat-line">Total user points: {totalPoints}</p>
         </div>
       </section>
 
       <section className="card">
-        <h3 style={{ marginTop: 0 }}>Current blueprint: {current?.name || '—'}</h3>
+        <h3>Current blueprint: {current?.name || '—'}</h3>
         <BlueprintCanvas points={current?.points || []} />
       </section>
     </div>

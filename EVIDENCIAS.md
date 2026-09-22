@@ -12,6 +12,10 @@
 | 6 | Tabla con los planos de "maria" usando el mock | [Punto 4](#punto-4-servicios-apimock-y-apiclient) |
 | 7 | Canvas con el plano "garage" (mock) dibujado | [Punto 4](#punto-4-servicios-apimock-y-apiclient) |
 | 8 | Tabla con "john"/"house" otra vez, ahora con el backend real | [Punto 4](#punto-4-servicios-apimock-y-apiclient) |
+| 9 | Página principal vacía, con los estilos nuevos (tarjetas, nav, botón) | [Punto 6](#punto-6-estilos) |
+| 10 | Tabla con los planos de "maria" (nombre/puntos/botón Open, con hover) | [Punto 6](#punto-6-estilos) |
+| 11 | Canvas del plano "garage" abierto, con los estilos aplicados | [Punto 6](#punto-6-estilos) |
+| 12 | Página principal en modo responsive (layout de una sola columna) | [Punto 6](#punto-6-estilos) |
 
 ---
 
@@ -162,7 +166,36 @@ Esto ya se puede ver, de hecho, en la Figura 5 del punto 3: ahí aparece el text
 
 ## Punto 6. Estilos
 
-*(Pendiente.)*
+Este punto pide agregar estilos para mejorar la presentación (se puede usar Bootstrap u otro framework) y ajustar tabla, botones y tarjetas para que se acerquen al mock de referencia.
+
+Ya existía un `styles.css` propio con tema oscuro (tarjetas, botones, inputs, grid), así que no partimos de cero. Lo que encontramos fue que buena parte de la tabla y del layout de la página principal (`BlueprintsPage.jsx`) estaba armada con estilos escritos a mano directo en el JSX (`style={{...}}`), en vez de usar clases del CSS. Eso hacía difícil mantenerlo y le faltaban detalles de interacción: los botones no cambiaban al pasar el mouse, los inputs no mostraban foco, las filas de la tabla no se resaltaban, y el layout de dos columnas no se adaptaba en pantallas angostas.
+
+Hicimos estos ajustes:
+
+- Sacamos los estilos inline de la tabla y el layout de `BlueprintsPage.jsx` y los pasamos a clases nuevas en `styles.css` (`.table`, `.table-wrap`, `.page-layout`, `.search-row`, `.stat-line`).
+- Agregamos estados que no existían: los botones y las filas de la tabla ahora resaltan al pasar el mouse, los campos de texto muestran un borde de foco, y los botones deshabilitados se ven apagados.
+- Agregamos una regla para que el layout de dos columnas (la lista de planos a la izquierda, el canvas a la derecha) se convierta en una sola columna cuando la pantalla es angosta, en vez de quedar apretado.
+- De paso limpiamos un par de estilos sueltos que ya no hacían falta (`marginTop: 0` repetido en varios títulos, un color de error escrito a mano) y los dejamos como clases reutilizables (`.muted`, `.error-text`).
+
+Mariana lo revisó en el navegador y tomó las capturas. De paso encontramos algo que no era de estilos: no existía el archivo `.env` en el proyecto (solo `.env.example`), así que la app no estaba usando el mock (`VITE_USE_MOCK` quedaba sin definir) y por eso al principio "maria" y "carlos" no traían resultados. Se copió `.env.example` a `.env` y se reinició el servidor; con eso el mock quedó activo y ya se pudo probar la tabla con datos reales del mock.
+
+![Página principal vacía, con los estilos nuevos](evidencias/06-principal-page.png)
+*Figura 9. La página principal con las tarjetas, el nav y el botón "Get blueprints" ya con los estilos nuevos.*
+
+![Tabla con los planos de maria](evidencias/06-get-bluprints-maria.png)
+*Figura 10. La tabla mostrando los planos "garage" (3 puntos) y "pool" (2 puntos) de maria, con el botón "Open" en su versión compacta (`.btn.sm`).*
+
+![Canvas del plano garage abierto](evidencias/06-open-blueprint.png)
+*Figura 11. Al abrir "garage": el título "Current blueprint: garage" y el canvas dibujando la figura.*
+
+![Página principal en modo responsive](evidencias/06-principal-page-responsive.png)
+*Figura 12. La misma página en modo responsive (DevTools): el layout de dos columnas colapsó a una sola, confirmando que la media query funciona.*
+
+**Archivos que cambiaron:**
+- [`src/styles.css`](./src/styles.css)
+- [`src/pages/BlueprintsPage.jsx`](./src/pages/BlueprintsPage.jsx)
+- [`src/pages/LoginPage.jsx`](./src/pages/LoginPage.jsx) (limpieza menor)
+- [`src/pages/BlueprintDetailPage.jsx`](./src/pages/BlueprintDetailPage.jsx) (limpieza menor)
 
 ---
 

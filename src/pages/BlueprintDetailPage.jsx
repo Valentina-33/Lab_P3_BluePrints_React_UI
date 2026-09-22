@@ -15,13 +15,13 @@ export default function BlueprintDetailPage() {
   if (!bp)
     return (
       <div className="card">
-        <p>Cargando...</p>
+        <p className="muted">Cargando...</p>
       </div>
     )
 
   return (
     <div className="card">
-      <h2 style={{ marginTop: 0 }}>{bp.name}</h2>
+      <h2>{bp.name}</h2>
       <p>
         <strong>Autor:</strong> {bp.author}
       </p>

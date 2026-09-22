@@ -20,7 +20,7 @@ export default function LoginPage() {
 
   return (
     <form className="card" onSubmit={submit}>
-      <h2 style={{ marginTop: 0 }}>Login</h2>
+      <h2>Login</h2>
       <div className="grid cols-2">
         <div>
           <label>Usuario</label>
@@ -36,7 +36,7 @@ export default function LoginPage() {
           />
         </div>
       </div>
-      {error && <p style={{ color: '#f87171' }}>{error}</p>}
+      {error && <p className="error-text">{error}</p>}
       <button className="btn primary" style={{ marginTop: 12 }}>
         Ingresar
       </button>
