@@ -29,3 +29,18 @@ export function create(payload) {
   // devolvemos el payload para que quien llame pueda actualizar su estado.
   return api.post('/v1/blueprints', payload).then(() => payload)
 }
+
+// Nota: PUT/DELETE no se verificaron contra el backend real (los labs
+// anteriores solo confirmaron GET/POST con curl), se implementan siguiendo
+// la misma convención REST que el resto de la API.
+export function update(author, name, payload) {
+  return api
+    .put(`/v1/blueprints/${encodeURIComponent(author)}/${encodeURIComponent(name)}`, payload)
+    .then(() => ({ ...payload, author, name }))
+}
+
+export function remove(author, name) {
+  return api
+    .delete(`/v1/blueprints/${encodeURIComponent(author)}/${encodeURIComponent(name)}`)
+    .then(() => ({ author, name }))
+}

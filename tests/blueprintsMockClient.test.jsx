@@ -30,4 +30,31 @@ describe('blueprintsMockClient', () => {
     const items = await mockClient.getByAuthor('test-author')
     expect(items).toContainEqual(payload)
   })
+
+  it('update reemplaza los puntos de un blueprint existente', async () => {
+    await mockClient.create({ author: 'update-author', name: 'shed', points: [] })
+    const updated = await mockClient.update('update-author', 'shed', {
+      points: [{ x: 9, y: 9 }],
+    })
+    expect(updated.points).toEqual([{ x: 9, y: 9 }])
+
+    const bp = await mockClient.getByAuthorAndName('update-author', 'shed')
+    expect(bp.points).toEqual([{ x: 9, y: 9 }])
+  })
+
+  it('update rechaza la promesa si el blueprint no existe', async () => {
+    await expect(mockClient.update('nadie', 'nada', { points: [] })).rejects.toThrow()
+  })
+
+  it('remove borra el blueprint para que ya no aparezca en getByAuthor', async () => {
+    await mockClient.create({ author: 'remove-author', name: 'shed', points: [] })
+    await mockClient.remove('remove-author', 'shed')
+
+    const items = await mockClient.getByAuthor('remove-author')
+    expect(items).toHaveLength(0)
+  })
+
+  it('remove rechaza la promesa si el blueprint no existe', async () => {
+    await expect(mockClient.remove('nadie', 'nada')).rejects.toThrow()
+  })
 })

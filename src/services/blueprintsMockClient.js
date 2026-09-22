@@ -51,3 +51,18 @@ export function create(payload) {
   blueprints = [...blueprints, payload]
   return Promise.resolve(payload)
 }
+
+export function update(author, name, payload) {
+  const idx = blueprints.findIndex((bp) => bp.author === author && bp.name === name)
+  if (idx === -1) return Promise.reject(new Error(`No existe el blueprint ${author}/${name}`))
+  const updated = { ...blueprints[idx], ...payload, author, name }
+  blueprints = blueprints.map((bp, i) => (i === idx ? updated : bp))
+  return Promise.resolve(updated)
+}
+
+export function remove(author, name) {
+  const exists = blueprints.some((bp) => bp.author === author && bp.name === name)
+  if (!exists) return Promise.reject(new Error(`No existe el blueprint ${author}/${name}`))
+  blueprints = blueprints.filter((bp) => !(bp.author === author && bp.name === name))
+  return Promise.resolve({ author, name })
+}

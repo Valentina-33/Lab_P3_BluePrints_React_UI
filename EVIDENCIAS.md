@@ -17,6 +17,17 @@
 | 11 | Canvas del plano "garage" abierto, con los estilos aplicados | [Punto 6](#punto-6-estilos) |
 | 12 | Página principal en modo responsive (layout de una sola columna) | [Punto 6](#punto-6-estilos) |
 | 13 | Salida de `npm test` con los 5 archivos y 12 pruebas en verde | [Punto 7](#punto-7-pruebas-unitarias) |
+| 14 | Redirección a /login al intentar Edit sin sesión | [Opcionales](#actividades-opcionales-recomendaciones-del-readme) |
+| 15 | Nav con sesión iniciada ("Nuevo blueprint" / "Cerrar sesión") | [Opcionales](#actividades-opcionales-recomendaciones-del-readme) |
+| 16 | Formulario de creación de blueprint lleno | [Opcionales](#actividades-opcionales-recomendaciones-del-readme) |
+| 17 | Blueprint creado en la tabla + canvas + Top 5 | [Opcionales](#actividades-opcionales-recomendaciones-del-readme) |
+| 18 | Confirmación del navegador antes de borrar | [Opcionales](#actividades-opcionales-recomendaciones-del-readme) |
+| 19 | Tabla después de borrar (optimistic update) | [Opcionales](#actividades-opcionales-recomendaciones-del-readme) |
+| 20 | Banner de error con botón Reintentar | [Opcionales](#actividades-opcionales-recomendaciones-del-readme) |
+| 21 | Top 5 blueprints ordenados por puntos | [Opcionales](#actividades-opcionales-recomendaciones-del-readme) |
+| 22 | Lienzo con puntos agregados a mano (click a click) | [Opcionales](#actividades-opcionales-recomendaciones-del-readme) |
+| 23 | Confirmación "Guardado ✓" tras corregir el bug de feedback | [Opcionales](#actividades-opcionales-recomendaciones-del-readme) |
+| 24 | `npm test` con los 6 archivos y 25 pruebas en verde | [Opcionales](#actividades-opcionales-recomendaciones-del-readme) |
 
 ---
 
@@ -178,7 +189,7 @@ Hicimos estos ajustes:
 - Agregamos una regla para que el layout de dos columnas (la lista de planos a la izquierda, el canvas a la derecha) se convierta en una sola columna cuando la pantalla es angosta, en vez de quedar apretado.
 - De paso limpiamos un par de estilos sueltos que ya no hacían falta (`marginTop: 0` repetido en varios títulos, un color de error escrito a mano) y los dejamos como clases reutilizables (`.muted`, `.error-text`).
 
-Mariana lo revisó en el navegador y tomó las capturas. De paso encontramos algo que no era de estilos: no existía el archivo `.env` en el proyecto (solo `.env.example`), así que la app no estaba usando el mock (`VITE_USE_MOCK` quedaba sin definir) y por eso al principio "maria" y "carlos" no traían resultados. Se copió `.env.example` a `.env` y se reinició el servidor; con eso el mock quedó activo y ya se pudo probar la tabla con datos reales del mock.
+Lo revisamos en el navegador y tomamos las capturas. De paso encontramos algo que no era de estilos: no existía el archivo `.env` en el proyecto (solo `.env.example`), así que la app no estaba usando el mock (`VITE_USE_MOCK` quedaba sin definir) y por eso al principio "maria" y "carlos" no traían resultados. Copiamos `.env.example` a `.env` y reiniciamos el servidor; con eso el mock quedó activo y ya se pudo probar la tabla con datos reales del mock.
 
 ![Página principal vacía, con los estilos nuevos](evidencias/06-principal-page.png)
 *Figura 9. La página principal con las tarjetas, el nav y el botón "Get blueprints" ya con los estilos nuevos.*
@@ -232,3 +243,70 @@ Con todo esto, quedaron **5 archivos de test y 12 pruebas en total, todas pasand
 **Archivos que cambiaron:**
 - [`tests/blueprintsSlice.test.jsx`](./tests/blueprintsSlice.test.jsx) (3 casos nuevos)
 - [`tests/BlueprintsPage.test.jsx`](./tests/BlueprintsPage.test.jsx) (se quitó el mock muerto de `fetchAuthors`)
+
+---
+
+## Actividades opcionales 
+
+Con los 7 requerimientos obligatorios cerrados, hicimos también varias de las actividades opcionales sugeridas al final del README. Ya probamos todo esto en el navegador y tomamos las capturas — quedan documentadas abajo.
+
+![npm test con los 6 archivos y 25 pruebas en verde](evidencias/08-more-tests.png)
+*Figura 24. `npm test` corriendo en la terminal después de todos los cambios de esta sección: 6 archivos, 25 pruebas, todas en verde.*
+
+### Login real + rutas protegidas
+
+El login ahora apunta a la ruta y forma de respuesta reales del backend, y hay un componente `PrivateRoute` que manda a `/login` a cualquiera que intente entrar a "Nuevo blueprint" o a "Edit" sin sesión iniciada.
+
+**Aclaración:** para las capturas que siguen (login, crear, editar, borrar) no nos logueamos de verdad contra el backend, porque para este laboratorio no teníamos el backend real levantado. Simulamos la sesión pegando un token de mentiras directo en `localStorage` desde la consola del navegador (`localStorage.setItem('token', 'fake-jwt-de-prueba')`). Esto alcanza para probar `PrivateRoute` y todo lo que solo depende de que *exista* un token (que es lo único que revisa `PrivateRoute`), pero no prueba el login real end-to-end contra el backend (eso sigue pendiente, requeriría levantar Postgres + el backend P2).
+
+![Redirección a /login al intentar Edit sin sesión](evidencias/08-edit-manda-login.png)
+*Figura 14. Al intentar entrar a "Edit" sin sesión iniciada, `PrivateRoute` redirige a `/login` (el nav muestra "Login", no "Cerrar sesión").*
+
+![Nav con sesión iniciada](evidencias/08-sesion-iniciada.png)
+*Figura 15. Con un token en `localStorage`, el nav cambia a "Blueprints / Nuevo blueprint / Cerrar sesión".*
+
+### Crear un blueprint desde la UI
+
+Nueva página en "Nuevo blueprint" (aparece en el nav solo si estás logueada) que usa el formulario que ya existía pero que antes no estaba conectado a nada.
+
+![Formulario de creación lleno](evidencias/08-crear-blueprint1.png)
+*Figura 16. El formulario de "Nuevo blueprint" (autor `mariana`, nombre `labARSW`, puntos en JSON) antes de guardar.*
+
+![Blueprint creado apareciendo en la tabla](evidencias/08-crear-blueprint2.png)
+*Figura 17. Después de guardar: "labARSW" aparece en la tabla de mariana con 2 puntos, el canvas de la derecha lo dibuja, y de paso se ve la tarjeta "Top 5 blueprints" funcionando.*
+
+### Editar y borrar (CRUD completo)
+
+Cada fila de la tabla ahora tiene tres botones: `Open` (como antes), `Edit` (nuevo, lleva a un editor) y `Delete` (nuevo, pide confirmación).
+
+![Confirmación del navegador antes de borrar](evidencias/08-borrar-blueprint.png)
+*Figura 18. El `window.confirm()` del navegador preguntando "¿Borrar 'labARSW'?" antes de despachar `removeBlueprint`.*
+
+![Tabla después de borrar](evidencias/08-blueprint-borrado.png)
+*Figura 19. Después de confirmar: "Sin resultados." para mariana — el blueprint desapareció de la tabla (optimistic update, se quita del estado antes de que el servicio termine).*
+
+### Dibujo interactivo (click para agregar puntos)
+
+La pantalla de "Edit" ya no es un dibujo fijo: es un lienzo donde cada click agrega un punto nuevo, con un botón para deshacer el último y otro para guardar.
+
+![Lienzo con puntos agregados a mano](evidencias/08-edit-blueprint.png)
+*Figura 22. Editando "garage" (autor maria): se agregaron varios puntos a mano haciendo click sobre el lienzo, formando el zigzag que se ve en la imagen, antes de guardar.*
+
+Al probar esto encontramos un bug real: el botón "Guardar" no daba ninguna confirmación visual, así que parecía que no hacía nada (aunque el guardado sí funcionaba por debajo — el problema era solo de feedback, la promesa del mock resuelve tan rápido que React nunca alcanzaba a pintar el estado "Guardando..."). Lo corregimos agregando una confirmación que sí se queda en pantalla:
+
+![Confirmación "Guardado" después de guardar](evidencias/08-guardado-confirmado.png)
+*Figura 23. Después de corregir el bug: al darle "Guardar" aparece "Guardado ✓" debajo de los botones, confirmando que el `updateBlueprint` sí terminó.*
+
+### Errores + Retry y estados de carga por operación
+
+Si una búsqueda de autor falla, ahora aparece un mensaje de error con un botón "Reintentar" en vez de quedarse en silencio.
+
+![Banner de error con botón Reintentar](evidencias/08-sin-backend.png)
+*Figura 20. Búsqueda del autor "yo" con `VITE_USE_MOCK=false`: aparece el error real del servidor ("Request failed with status code 500") junto con el botón "Reintentar", en vez de quedarse en silencio como antes.*
+
+### Top 5 blueprints por puntos
+
+Nueva tarjeta que aparece debajo de la tabla de resultados (solo si ya buscaste al menos un autor), con los 5 blueprints con más puntos de entre todos los que ya se han consultado en esta sesión.
+
+![Top 5 blueprints ordenados por puntos](evidencias/08-top-blueprints.png)
+*Figura 21. Después de buscar "maria" y "carlos": la tarjeta "Top 5 blueprints" queda ordenada correctamente de mayor a menor ("office" 4 puntos, "garage" 3 puntos, "pool" 2 puntos).*

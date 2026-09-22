@@ -1,11 +1,18 @@
 import { useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { fetchByAuthor, fetchBlueprint } from '../features/blueprints/blueprintsSlice.js'
+import { Link } from 'react-router-dom'
+import {
+  fetchByAuthor,
+  fetchBlueprint,
+  removeBlueprint,
+  selectTopBlueprints,
+} from '../features/blueprints/blueprintsSlice.js'
 import BlueprintCanvas from '../components/BlueprintCanvas.jsx'
 
 export default function BlueprintsPage() {
   const dispatch = useDispatch()
-  const { byAuthor, current, status } = useSelector((s) => s.blueprints)
+  const { byAuthor, current, list, detail } = useSelector((s) => s.blueprints)
+  const topBlueprints = useSelector(selectTopBlueprints)
   const [authorInput, setAuthorInput] = useState('')
   const [selectedAuthor, setSelectedAuthor] = useState('')
   const items = byAuthor[selectedAuthor] || []
@@ -21,8 +28,17 @@ export default function BlueprintsPage() {
     dispatch(fetchByAuthor(authorInput))
   }
 
+  const retry = () => {
+    if (selectedAuthor) dispatch(fetchByAuthor(selectedAuthor))
+  }
+
   const openBlueprint = (bp) => {
     dispatch(fetchBlueprint({ author: bp.author, name: bp.name }))
+  }
+
+  const deleteBlueprint = (bp) => {
+    if (!window.confirm(`¿Borrar "${bp.name}"?`)) return
+    dispatch(removeBlueprint({ author: bp.author, name: bp.name }))
   }
 
   return (
@@ -45,8 +61,16 @@ export default function BlueprintsPage() {
 
         <div className="card">
           <h3>{selectedAuthor ? `${selectedAuthor}'s blueprints:` : 'Results'}</h3>
-          {status === 'loading' && <p className="muted">Cargando...</p>}
-          {!items.length && status !== 'loading' && <p className="muted">Sin resultados.</p>}
+          {list.status === 'loading' && <p className="muted">Cargando...</p>}
+          {list.status === 'failed' && (
+            <div>
+              <p className="error-text">{list.error}</p>
+              <button className="btn sm" onClick={retry}>
+                Reintentar
+              </button>
+            </div>
+          )}
+          {!items.length && list.status === 'succeeded' && <p className="muted">Sin resultados.</p>}
           {!!items.length && (
             <div className="table-wrap">
               <table className="table">
@@ -62,9 +86,15 @@ export default function BlueprintsPage() {
                     <tr key={bp.name}>
                       <td>{bp.name}</td>
                       <td className="text-right">{bp.points?.length || 0}</td>
-                      <td>
+                      <td style={{ display: 'flex', gap: 6 }}>
                         <button className="btn sm" onClick={() => openBlueprint(bp)}>
                           Open
+                        </button>
+                        <Link className="btn sm" to={`/blueprints/${bp.author}/${bp.name}`}>
+                          Edit
+                        </Link>
+                        <button className="btn sm" onClick={() => deleteBlueprint(bp)}>
+                          Delete
                         </button>
                       </td>
                     </tr>
@@ -75,10 +105,26 @@ export default function BlueprintsPage() {
           )}
           <p className="stat-line">Total user points: {totalPoints}</p>
         </div>
+
+        {!!topBlueprints.length && (
+          <div className="card">
+            <h3>Top 5 blueprints (por puntos)</h3>
+            <ol style={{ margin: 0, paddingLeft: 20 }}>
+              {topBlueprints.map((bp) => (
+                <li key={`${bp.author}/${bp.name}`}>
+                  {bp.name} <span className="muted">({bp.author})</span> — {bp.points?.length || 0}{' '}
+                  puntos
+                </li>
+              ))}
+            </ol>
+          </div>
+        )}
       </section>
 
       <section className="card">
         <h3>Current blueprint: {current?.name || '—'}</h3>
+        {detail.status === 'loading' && <p className="muted">Cargando plano...</p>}
+        {detail.status === 'failed' && <p className="error-text">{detail.error}</p>}
         <BlueprintCanvas points={current?.points || []} />
       </section>
     </div>

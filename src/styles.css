@@ -37,12 +37,14 @@ a {
   margin-top: 0;
 }
 .btn {
+  display: inline-block;
   padding: 8px 14px;
   border-radius: 10px;
   border: 1px solid #334155;
   background: #1f2937;
   color: #e2e8f0;
   cursor: pointer;
+  text-decoration: none;
   transition:
     background 0.15s ease,
     border-color 0.15s ease;
@@ -130,12 +132,20 @@ nav {
   display: flex;
   gap: 4px;
 }
-nav a {
+nav a,
+nav button.link {
   padding: 6px 10px;
   border-radius: 8px;
   color: #94a3b8;
 }
-nav a:hover {
+nav button.link {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+}
+nav a:hover,
+nav button.link:hover {
   background: #1f2937;
   color: #e2e8f0;
 }

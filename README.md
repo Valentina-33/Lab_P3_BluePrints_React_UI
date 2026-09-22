@@ -1,4 +1,6 @@
 # Lab – React Client for Blueprints (Redux + Axios + JWT)
+## Paula Lozano y Mariana Malagón.
+Nota: Las evidencias se encuentran en EVIDENCIAS.md
 
 > Basado en el cliente HTML/JS del repo de referencia, este laboratorio moderniza el _frontend_ con **React + Vite**, **Redux Toolkit**, **Axios** (con interceptores y JWT), **React Router** y pruebas con **Vitest + Testing Library**.
 
