@@ -1,10 +1,23 @@
 # Evidencias del laboratorio – Blueprints React UI
 
+## Índice de imágenes
+
+| # | Descripción | Punto |
+|---|---|---|
+| 1 | El contenedor de Postgres corriendo (`docker ps`) | [Antes de empezar](#antes-de-empezar-dejar-todo-corriendo) |
+| 2 | Salida de `npm test` con los 4 archivos en verde | [Antes de empezar](#antes-de-empezar-dejar-todo-corriendo) |
+| 3 | Canvas vacío, sin blueprint cargado | [Punto 1](#punto-1-el-canvas-lienzo-para-dibujar) |
+| 4 | Tabla con el plano "house" del autor john (2 puntos) | [Punto 2](#punto-2-listar-los-planos-de-un-autor) |
+| 5 | Canvas con el plano "house" dibujado | [Punto 3](#punto-3-seleccionar-un-plano-y-graficarlo) |
+| 6 | Tabla con los planos de "maria" usando el mock | [Punto 4](#punto-4-servicios-apimock-y-apiclient) |
+| 7 | Canvas con el plano "garage" (mock) dibujado | [Punto 4](#punto-4-servicios-apimock-y-apiclient) |
+| 8 | Tabla con "john"/"house" otra vez, ahora con el backend real | [Punto 4](#punto-4-servicios-apimock-y-apiclient) |
+
 ---
 
 ## Antes de empezar: dejar todo corriendo
 
-Para poder probar cualquier punto, primero había que levantar los backends de los labs anteriores. 
+Para poder probar cualquier punto, primero había que levantar los backends de los labs anteriores.
 
 Prendimos el backend con JWT (el de la Parte 2), que es el que vamos a usar para las pruebas reales porque trae adentro tanto el login como toda la API de blueprints.
 
@@ -12,10 +25,10 @@ Para confirmar que de verdad funcionaba, no nos quedamos solo con que "arrancó"
 
 De paso, notamos que los tests del frontend no estaban corriendo (fallaban todos por un tema de configuración de Vitest), y aprovechamos para revisarlos uno por uno. Resultó que no era solo configuración: había dos bugs reales. El mock del canvas para las pruebas no se estaba aplicando, y el formulario de crear blueprint tenía las etiquetas (`<label>`) sin conectar a sus campos, así que las pruebas no podían "encontrar" los inputs. Ya quedaron los 4 tests pasando.
 
-📷 *Captura pendiente:* `evidencias/00-postgres-arriba.png` — el contenedor de Postgres corriendo (`docker ps`).
+![El contenedor de Postgres corriendo](evidencias/00-postgres-arriba.png)
+*Figura 1. El contenedor de Postgres corriendo (`docker ps`).*
 
-
-📷 *Captura pendiente:* `evidencias/00-tests-pasando.png` — la salida de `npm test` con los 4 archivos en verde.
+*Figura 2. La salida de `npm test` con los 4 archivos en verde. (pendiente de agregar `evidencias/00-tests-pasando.png`)*
 
 ---
 
@@ -29,7 +42,8 @@ Lo único que le faltaba era un detalle: el canvas no tenía un identificador pr
 
 Probamos la página con el servidor corriendo y así se ve hoy: el canvas está ahí, con su cuadrícula, esperando a que le carguemos un plano. También confirmamos "en vivo", abriendo la consola del navegador, que el `id` efectivamente quedó puesto.
 
-📷 *Captura pendiente:* `evidencias/01-canvas-vacio.png` — la página principal con el canvas vacío (cuadrícula gris, sin blueprint cargado).
+![Canvas vacío, sin blueprint cargado](evidencias/01-canvas-vacio.png)
+*Figura 3. La página principal con el canvas vacío (cuadrícula gris, sin blueprint cargado).*
 
 **Archivo que cambió:** [`src/components/BlueprintCanvas.jsx`](./src/components/BlueprintCanvas.jsx)
 
@@ -58,7 +72,8 @@ Las tres columnas están armadas en [BlueprintsPage.jsx](./src/pages/BlueprintsP
 
 Una aclaración importante: para poder probar esto tuvimos que "loguearnos" a mano, pidiendo el token por fuera (con curl), porque el backend real exige ese token para consultar cualquier cosa, y la pantalla de Login del frontend todavía no está bien conectada con el backend real (eso lo vamos a resolver más adelante, en su propio punto). Por ahora simplemente pusimos el token a la fuerza para poder comprobar que la tabla sí funciona de verdad.
 
-📷 *Captura pendiente:* `evidencias/02-listado-autor.png` — la tabla mostrando el plano "house" del autor john, con 2 puntos.
+![Tabla con el plano house del autor john](evidencias/02-listado-autor.png)
+*Figura 4. La tabla mostrando el plano "house" del autor john, con 2 puntos.*
 
 **Archivos que cambiaron:**
 - [`src/features/blueprints/blueprintsSlice.js`](./src/features/blueprints/blueprintsSlice.js) (ruta correcta + lectura de la respuesta real)
@@ -79,7 +94,8 @@ Le hicimos el mismo ajuste que al punto 2: apuntar a la ruta real (`/v1/blueprin
 
 Con eso ya probamos el flujo completo: buscamos los planos de "john", le dimos clic a "Open" en la fila de "house", y pasó justo lo que pedía el enunciado: arriba dice "Current blueprint: house", y el canvas dibujó la línea entre sus dos puntos, cada uno marcado con un puntico amarillo.
 
-📷 *Captura pendiente:* `evidencias/03-plano-abierto.png` — el canvas con la línea y los puntos del plano "house", y el texto "Current blueprint: house".
+![Canvas con el plano house dibujado](evidencias/03-plano-abierto.png)
+*Figura 5. El canvas con la línea y los puntos del plano "house", y el texto "Current blueprint: house".*
 
 **Archivo que cambió:** [`src/features/blueprints/blueprintsSlice.js`](./src/features/blueprints/blueprintsSlice.js) (la función `fetchBlueprint`)
 
@@ -106,13 +122,16 @@ Para comprobar que el cambio funciona de verdad y no es solo teoría, lo probamo
 1. Con `VITE_USE_MOCK=true`: buscamos el autor "maria" (que no existe en el backend real, solo en los datos de mentiras) y salieron sus dos planos, "garage" (3 puntos) y "pool" (2 puntos), sin que la app tocara el backend para nada. Abrimos "garage" y el canvas dibujó su figura correctamente.
 2. Con `VITE_USE_MOCK=false`: buscamos "john" otra vez y volvió a traer "house" con 2 puntos, exactamente como en los puntos 2 y 3, esta vez sí hablando con el backend real.
 
-Los dos casos funcionaron sin tocar ni una línea de código, solo cambiando esa variable.
+Los dos casos funcionaron sin tocar ni una línea de código, solo cambiando esa variable. La pantalla se ve igual en ambos modos (mismos componentes, mismos estilos): lo único que cambia es de dónde salen los datos, que es justo lo que se estaba probando.
 
-📷 *Captura pendiente:* `evidencias/04-mock-maria.png` — la tabla mostrando los planos "garage" y "pool" de maria, usando el mock (sin backend).
+![Tabla con los planos de maria usando el mock](evidencias/04-mock-maria.png)
+*Figura 6. La tabla mostrando los planos "garage" y "pool" de maria, usando el mock (sin backend).*
 
-📷 *Captura pendiente:* `evidencias/04-mock-garage-canvas.png` — el canvas dibujando el plano "garage" con sus 3 puntos.
+![Canvas con el plano garage dibujado](evidencias/04-mock-garage-canvas.png)
+*Figura 7. El canvas dibujando el plano "garage" con sus 3 puntos (datos del mock).*
 
-📷 *Captura pendiente:* `evidencias/04-real-john.png` — la misma búsqueda de "john" mostrando "house" con 2 puntos, ahora con `VITE_USE_MOCK=false` (backend real).
+![Tabla con john/house usando el backend real](evidencias/04-real-john.png)
+*Figura 8. La misma búsqueda de "john" mostrando "house" con 2 puntos, ahora con `VITE_USE_MOCK=false` (backend real).*
 
 **Archivos nuevos:**
 - [`src/services/blueprintsMockClient.js`](./src/services/blueprintsMockClient.js)
