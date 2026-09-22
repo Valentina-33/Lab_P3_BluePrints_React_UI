@@ -310,3 +310,11 @@ Nueva tarjeta que aparece debajo de la tabla de resultados (solo si ya buscaste 
 
 ![Top 5 blueprints ordenados por puntos](evidencias/08-top-blueprints.png)
 *Figura 21. Después de buscar "maria" y "carlos": la tarjeta "Top 5 blueprints" queda ordenada correctamente de mayor a menor ("office" 4 puntos, "garage" 3 puntos, "pool" 2 puntos).*
+
+### CI (GitHub Actions)
+
+El workflow (`.github/workflows/ci.yml`, job "node-ci") ya venía en el repo desde el punto de partida del laboratorio y corre `lint`, `test` y `build` en cada push. Corrimos los 3 comandos localmente, exactamente igual a como los corre el workflow, y los 3 pasaron sin errores.
+
+Al ir a comprobarlo en la pestaña "Actions" de GitHub nos encontramos con que las Actions estaban desactivadas: como este repo es un **fork** que ya traía archivos de workflow, GitHub las apaga por defecto como medida de seguridad, hasta que el dueño del fork las habilita a propósito. Se activaron desde el botón "I understand my workflows, go ahead and enable them" — esto es una configuración local del fork, no afecta para nada al repositorio original del que se hizo fork.
+
+*Captura pendiente: la corrida de "node-ci" en verde en la pestaña Actions, después del primer push con Actions ya habilitadas.*
