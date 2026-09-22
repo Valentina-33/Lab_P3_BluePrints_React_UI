@@ -4,6 +4,19 @@ Documento de trabajo para hacer seguimiento del laboratorio paso a paso. No reem
 
 > Los commits de cada punto los hace Paula manualmente. Este documento se actualiza en cada sesión de trabajo.
 
+## Para quien siga (puntos 5, 6 y 7)
+
+Paula ya cerró los puntos 1 a 4 (ver checklist en la sección 5 y el detalle narrado en [EVIDENCIAS.md](./EVIDENCIAS.md)). Quedan pendientes:
+
+- **Requerimiento 5** (interfaz en React / estado en Redux): revisar contra el checklist de la sección 5, probablemente ya está resuelto de fondo por cómo quedó armado el resto.
+- **Requerimiento 6** (estilos): revisar `src/styles.css` contra el mock de referencia del README.
+- **Requerimiento 7** (pruebas unitarias): los 4 tests existentes ya están arreglados y pasando; falta ver si hace falta agregar pruebas nuevas para lo que se construyó en los puntos 2-4 (servicios, slice).
+
+**Estado del entorno al cerrar esta sesión (2026-09-21):**
+- `.env` quedó con `VITE_USE_MOCK=true` (no necesitas backend para trabajar en la UI/estilos/tests).
+- Si necesitas probar contra el backend real: Postgres está corriendo en Docker (contenedor `blueprints-db`, si ya no está arriba: `docker run --name blueprints-db -e POSTGRES_DB=blueprints_db -e POSTGRES_USER=blueprints_user -e POSTGRES_PASSWORD=blueprints_pass -p 5432:5432 -d postgres:16`), y el backend P2 se levanta con `cd ARSW_Lab_P2_BluePrints_Java21_API_Security_JWT && mvn -q -DskipTests spring-boot:run`. El login real (`POST /auth/login`, usuario `student`/`student123`) da un token de solo 30 segundos, así que para probar a mano hay que ser rápido.
+- Todos los cambios están sin commitear todavía (cada punto se commitea manualmente al cerrarlo).
+
 ---
 
 ## 1. Resumen ejecutivo (auditoría inicial – 2026-09-21)
@@ -114,8 +127,8 @@ Estos son los puntos que **van a romper la integración real** aunque el código
 |---|---|---|---|
 | 1 | Canvas (`BlueprintCanvas`, dimensiones ~520×360) | ✅ Cerrado (2026-09-21) | [BlueprintCanvas.jsx](Lab_P3_BluePrints_React_UI/src/components/BlueprintCanvas.jsx): dimensiones 520×360 por defecto, no ocupa toda la pantalla (`maxWidth`). Se agregó prop `id` (default `"blueprint-canvas"`) para que el `<canvas>` tenga un identificador propio explícito en el DOM, no solo el `ref` de React. |
 | 2 | Listar planos de un autor (input + tabla: nombre, # puntos, botón Open) | ✅ Cerrado (2026-09-21) | [BlueprintsPage.jsx](Lab_P3_BluePrints_React_UI/src/pages/BlueprintsPage.jsx). Validado end-to-end en el navegador contra el backend P2 real (autor `john`, plano `house`, 2 puntos). Se corrigieron H1 (ruta), H6 (desempaquetar `data.data`) y H7 (CORS vía proxy de Vite) para `fetchByAuthor`. También se quitó el `dispatch(fetchAuthors())` automático al montar la página: no se usaba en ningún lado y solo generaba una petición fallida que ensuciaba el estado `status` compartido. |
-| 3 | Seleccionar y graficar un plano (texto con nombre + dibujo) | ✅ Implementado en UI | `openBlueprint` + `fetchBlueprint` + `BlueprintCanvas`. Bloqueado en integración real por H1. |
-| 4 | Servicios `apimock`/`apiclient` intercambiables vía `VITE_USE_MOCK` | ❌ No implementado | No existen `apimock.js` ni `blueprintsService.js`; tampoco la variable `VITE_USE_MOCK` en `.env.example`. |
+| 3 | Seleccionar y graficar un plano (texto con nombre + dibujo) | ✅ Cerrado (2026-09-21) | `openBlueprint` + `fetchBlueprint` + `BlueprintCanvas`. Validado en el navegador contra P2: al abrir `john/house` se actualizó "Current blueprint: house" y el canvas dibujó la línea + los 2 puntos. Se corrigió H1/H6 en `fetchBlueprint` (mismo patrón que en el requerimiento 2). |
+| 4 | Servicios `apimock`/`apiclient` intercambiables vía `VITE_USE_MOCK` | ✅ Cerrado (2026-09-21) | Nuevos `blueprintsMockClient.js`, `blueprintsApiClient.js`, `blueprintsService.js` (switch por `VITE_USE_MOCK`). `blueprintsSlice.js` migrado para usar el servicio. Validado en el navegador con `VITE_USE_MOCK=true` (autor `maria`, datos en memoria) y `VITE_USE_MOCK=false` (autor `john`, backend real) — ambos funcionan sin tocar código, solo la variable de entorno. |
 | 5 | Nombre del plano actual en estado global (Redux), sin manipular el DOM | ✅ Implementado | `current` en `blueprintsSlice.js`, leído vía `useSelector`. |
 | 6 | Estilos | ✅ Implementado (propio, no Bootstrap) | [styles.css](Lab_P3_BluePrints_React_UI/src/styles.css), tema oscuro consistente. Cumple el requerimiento (no exige Bootstrap específicamente). |
 | 7 | Pruebas unitarias (canvas, formulario, Redux) | ✅ Los 4 tests pasan (corregido en esta sesión) | Ver sección 6 para el detalle de los 3 bugs que se arreglaron. |
@@ -145,8 +158,8 @@ Vamos a ir **en el orden exacto de los 7 requerimientos del README** (sección "
 - [x] **Preparación (infraestructura, no es un requerimiento del README)**: Postgres vía Docker + backend P2 arrancado y validado con `curl`; y arreglo de los 4 tests que estaban rotos (bugs reales, no solo config). Esto no bloquea nada del checklist, era necesario para poder probar cualquier punto contra un backend real. *(2026-09-21, ver bitácora)*
 - [x] **Requerimiento 1 — Canvas**: cerrado. `id` propio agregado a `BlueprintCanvas`. Tests siguen pasando (4/4). *Pendiente: tu commit.* *(2026-09-21)*
 - [x] **Requerimiento 2 — Listar planos de un autor**: cerrado. Se corrigieron ruta, formato de respuesta, CORS (H1/H6/H7) y se quitó código muerto. Probado en el navegador contra el backend real. Tests y lint en verde. *Pendiente: tu commit.* *(2026-09-21)*
-- [ ] **Requerimiento 3 — Seleccionar un plano y graficarlo**
-- [ ] **Requerimiento 4 — Servicios `apimock`/`apiclient`**
+- [x] **Requerimiento 3 — Seleccionar un plano y graficarlo**: cerrado. Se corrigió `fetchBlueprint` (misma ruta/desempaquetado que el punto 2). Probado en el navegador: al abrir `john/house` se actualizó el texto y se dibujó el plano en el canvas. Tests y lint en verde. *Pendiente: tu commit.* *(2026-09-21)*
+- [x] **Requerimiento 4 — Servicios `apimock`/`apiclient`**: cerrado. Servicios nuevos + slice migrado. Probado en ambos modos (mock y real) en el navegador. Tests y lint en verde. *Pendiente: tu commit.* *(2026-09-21)*
 - [ ] **Requerimiento 5 — Interfaz con React (estado en Redux)**
 - [ ] **Requerimiento 6 — Estilos**
 - [ ] **Requerimiento 7 — Pruebas unitarias**
@@ -171,3 +184,5 @@ El detalle de cada uno (qué ya existe, qué falta) está en la sección 5. Las 
 - Reordenado el plan de la sección 7 para seguir el orden exacto de los 7 requerimientos del README (a petición de Paula), en vez del orden propio que se había propuesto inicialmente.
 - **Cerrado el Requerimiento 1 (Canvas)**: agregado `id` propio (default `"blueprint-canvas"`) a `BlueprintCanvas.jsx`. Verificado que los 4 tests siguen pasando. Pendiente de review y commit manual.
 - **Cerrado el Requerimiento 2 (Listar planos de un autor)**: se corrigió la ruta y el desempaquetado de la respuesta en `fetchByAuthor` (`blueprintsSlice.js`), se quitó el `dispatch(fetchAuthors())` muerto en `BlueprintsPage.jsx`, y se encontró y resolvió un hallazgo nuevo (H7, CORS) agregando un proxy de desarrollo en `vite.config.js` + baseURL relativa en `apiClient.js` + `.env.example` actualizado. Probado en el navegador (con un token inyectado a mano, ya que el login real todavía no está conectado): la tabla mostró correctamente el plano `house` del autor `john` con sus 2 puntos. Tests (4/4) y lint en verde. Pendiente de review y commit manual.
+- **Cerrado el Requerimiento 3 (Seleccionar un plano y graficarlo)**: se corrigió `fetchBlueprint` (mismo patrón de ruta/desempaquetado que `fetchByAuthor`). Probado en el navegador: al darle clic a "Open" en la fila de `house`, se actualizó "Current blueprint: house" y el canvas dibujó la línea entre los 2 puntos con cada uno marcado. Tests (4/4) y lint en verde. Pendiente de review y commit manual.
+- **Cerrado el Requerimiento 4 (Servicios `apimock`/`apiclient`)**: se crearon `blueprintsMockClient.js` (datos de prueba en memoria: autores `maria` y `carlos`), `blueprintsApiClient.js` (misma interfaz usando Axios contra `/v1/blueprints/**`) y `blueprintsService.js` (switch por `VITE_USE_MOCK`). Se migró `blueprintsSlice.js` para usar el servicio en vez de Axios directo, y se terminó de eliminar `fetchAuthors` (dead code desde el punto 2, ahora cubierto por `getAll` en la interfaz del servicio). Nota de nombres: el servicio real no se llamó `apiclient.js` (como sugiere el README) porque en Windows colisionaría con el `apiClient.js` ya existente (filesystem case-insensitive); se llamó `blueprintsApiClient.js` en su lugar, documentado en un comentario. Validado en el navegador en ambos modos: `VITE_USE_MOCK=true` con el autor `maria` (datos en memoria, sin backend) y `VITE_USE_MOCK=false` con el autor `john` (backend real), cambiando solo la variable de entorno. Tests (4/4) y lint en verde. Pendiente de review y commit manual.

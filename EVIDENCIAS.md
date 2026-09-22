@@ -71,13 +71,57 @@ Una aclaración importante: para poder probar esto tuvimos que "loguearnos" a ma
 
 ## Punto 3. Seleccionar un plano y graficarlo
 
-*(Pendiente.)*
+Este punto pide que, al darle clic al botón "Open" de la tabla, pasen tres cosas: que se actualice un texto con el nombre del plano que se abrió, que se traigan sus puntos, y que se dibujen en el canvas (las líneas entre los puntos, y cada punto marcado).
+
+En estos momentos el botón sí funciona, pero llama a la ruta vieja del backend (`/blueprints/autor/nombre`), así que la petición falla calladita y no pasa nada en la pantalla.
+
+Le hicimos el mismo ajuste que al punto 2: apuntar a la ruta real (`/v1/blueprints/autor/nombre`) y sacar los datos de donde realmente vienen (`{code, message, data}`).
+
+Con eso ya probamos el flujo completo: buscamos los planos de "john", le dimos clic a "Open" en la fila de "house", y pasó justo lo que pedía el enunciado: arriba dice "Current blueprint: house", y el canvas dibujó la línea entre sus dos puntos, cada uno marcado con un puntico amarillo.
+
+📷 *Captura pendiente:* `evidencias/03-plano-abierto.png` — el canvas con la línea y los puntos del plano "house", y el texto "Current blueprint: house".
+
+**Archivo que cambió:** [`src/features/blueprints/blueprintsSlice.js`](./src/features/blueprints/blueprintsSlice.js) (la función `fetchBlueprint`)
 
 ---
 
 ## Punto 4. Servicios `apimock` y `apiclient`
 
-*(Pendiente.)*
+Este punto lo que pide es tener dos "servicios" que hagan lo mismo (traer todos los planos, traer los de un autor, traer uno puntual, y crear uno nuevo), uno que use datos de mentiras guardados en memoria (para poder probar la app sin depender de nada más) y otro que sí hable con el backend real. Y que se pueda cambiar de uno a otro con una sola variable en el `.env`, sin tocar código.
+
+Armamos tres archivos nuevos en `src/services/`:
+
+- **`blueprintsMockClient.js`**: el servicio de mentiras. Tiene unos planos inventados guardados en una lista (de "maria" y "carlos") y expone las 4 funciones que pide el enunciado (`getAll`, `getByAuthor`, `getByAuthorAndName`, `create`), todas trabajando sobre esa lista en memoria, sin llamar a ningún backend.
+- **`blueprintsApiClient.js`**: el servicio real. Tiene las mismas 4 funciones, pero por debajo usan Axios para hablar con el backend de verdad (las mismas rutas que ya habíamos arreglado en los puntos 2 y 3).
+- **`blueprintsService.js`**: el que decide cuál de los dos usar, mirando la variable `VITE_USE_MOCK` del `.env`. Si es `true`, usa el de mentiras; si no, usa el real. Ese es el "cambio con una sola línea" que pide el laboratorio: solo hay que tocar esa variable, nada de código.
+
+Un detalle de nombres que vale la pena contar: el enunciado sugiere llamar al servicio real "apiclient", pero ya existía un archivo `apiClient.js` (con mayúscula) que es la configuración base de Axios. En Windows, el sistema de archivos no distingue mayúsculas de minúsculas, así que un archivo `apiclient.js` y otro `apiClient.js` serían el mismo archivo y uno se comería al otro. Por eso el servicio real se llama `blueprintsApiClient.js` en vez de `apiclient.js`, dejando esto explicado en un comentario en el código.
+
+Después conectamos el Redux (`blueprintsSlice.js`) para que, en vez de llamarle directo a Axios con URLs escritas a mano, le pregunte a `blueprintsService`. Así el cambio de mock a real (o viceversa) se nota en toda la aplicación, no solo en un archivo suelto que nadie usa.
+
+De paso, encontramos que había un pedazo de la interfaz (`fetchAuthors`) que ya habíamos dejado sin usar desde el punto 2, y como ahora `getAll` cumple ese mismo propósito dentro de la interfaz oficial del servicio, terminamos de quitarlo del todo.
+
+Para comprobar que el cambio funciona de verdad y no es solo teoría, lo probamos en los dos sentidos:
+
+1. Con `VITE_USE_MOCK=true`: buscamos el autor "maria" (que no existe en el backend real, solo en los datos de mentiras) y salieron sus dos planos, "garage" (3 puntos) y "pool" (2 puntos), sin que la app tocara el backend para nada. Abrimos "garage" y el canvas dibujó su figura correctamente.
+2. Con `VITE_USE_MOCK=false`: buscamos "john" otra vez y volvió a traer "house" con 2 puntos, exactamente como en los puntos 2 y 3, esta vez sí hablando con el backend real.
+
+Los dos casos funcionaron sin tocar ni una línea de código, solo cambiando esa variable.
+
+📷 *Captura pendiente:* `evidencias/04-mock-maria.png` — la tabla mostrando los planos "garage" y "pool" de maria, usando el mock (sin backend).
+
+📷 *Captura pendiente:* `evidencias/04-mock-garage-canvas.png` — el canvas dibujando el plano "garage" con sus 3 puntos.
+
+📷 *Captura pendiente:* `evidencias/04-real-john.png` — la misma búsqueda de "john" mostrando "house" con 2 puntos, ahora con `VITE_USE_MOCK=false` (backend real).
+
+**Archivos nuevos:**
+- [`src/services/blueprintsMockClient.js`](./src/services/blueprintsMockClient.js)
+- [`src/services/blueprintsApiClient.js`](./src/services/blueprintsApiClient.js)
+- [`src/services/blueprintsService.js`](./src/services/blueprintsService.js)
+
+**Archivos que cambiaron:**
+- [`src/features/blueprints/blueprintsSlice.js`](./src/features/blueprints/blueprintsSlice.js) (ahora usa `blueprintsService` en vez de Axios directo; se quitó `fetchAuthors`)
+- [`.env.example`](./.env.example) (se agregó `VITE_USE_MOCK`)
 
 ---
 
