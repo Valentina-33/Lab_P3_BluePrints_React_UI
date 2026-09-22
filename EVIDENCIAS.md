@@ -28,6 +28,7 @@
 | 22 | Lienzo con puntos agregados a mano (click a click) | [Opcionales](#actividades-opcionales-recomendaciones-del-readme) |
 | 23 | Confirmación "Guardado ✓" tras corregir el bug de feedback | [Opcionales](#actividades-opcionales-recomendaciones-del-readme) |
 | 24 | `npm test` con los 6 archivos y 25 pruebas en verde | [Opcionales](#actividades-opcionales-recomendaciones-del-readme) |
+| 25 | Corrida "node-ci" en verde en GitHub Actions | [Opcionales](#actividades-opcionales-recomendaciones-del-readme) |
 
 ---
 
@@ -317,4 +318,5 @@ El workflow (`.github/workflows/ci.yml`, job "node-ci") ya venía en el repo des
 
 Al ir a comprobarlo en la pestaña "Actions" de GitHub nos encontramos con que las Actions estaban desactivadas: como este repo es un **fork** que ya traía archivos de workflow, GitHub las apaga por defecto como medida de seguridad, hasta que el dueño del fork las habilita a propósito. Se activaron desde el botón "I understand my workflows, go ahead and enable them" — esto es una configuración local del fork, no afecta para nada al repositorio original del que se hizo fork.
 
-*Captura pendiente: la corrida de "node-ci" en verde en la pestaña Actions, después del primer push con Actions ya habilitadas.*
+![Corrida de node-ci en verde en GitHub Actions](evidencias/09-ci-actions.png)
+*Figura 25. La corrida "node-ci" (`feat: evidence ci #1`) en verde tras el push a `main`, con el job `build` (lint + test + build) pasando en 21s — Status: Success.*
